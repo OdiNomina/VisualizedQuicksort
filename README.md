@@ -1,0 +1,1 @@
+In einer Konsolenausgabe wird der Ablauf des rekursiven Quicksort-Algorithmus beispielhaft visualisiert.
