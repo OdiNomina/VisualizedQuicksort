@@ -6,142 +6,156 @@
 * \33\[u => Cursor auf die gespeicherte Position setzen
 */
 
+void printPivotLine(int*, int, int);
+void printInitialIndicesLine(int*, int, int, int);
+
+
 void visualizedQuicksort(int *numbersToSort, int leftLimit, int rightLimit, int *pivotPrint, int *indicesPrint, int *sortedPrint)
 {
     if(leftLimit < rightLimit)
     {
-        sleep(2);
-        int sortedPivotPos = sortPivotToCorrectPos(&numbersToSort[0], leftLimit, rightLimit, &pivotPrint[0], &indicesPrint[0]);
+        int sortedPivotPos = sortPivotToCorrectPos(numbersToSort, leftLimit, rightLimit, pivotPrint, indicesPrint);
 
+        //##### nur für Print
         sortedPrint[sortedPivotPos] = 83;
         printf("\33\[u\33\[6B");
         for(int i=0; i<rightLimit+1; i++)
             printf(" %3c  ", sortedPrint[i]);
         sleep(2);
+        //##
 
-        visualizedQuicksort(&numbersToSort[0], leftLimit, sortedPivotPos-1, pivotPrint, indicesPrint, sortedPrint);
-        visualizedQuicksort(&numbersToSort[0], sortedPivotPos+1, rightLimit, pivotPrint, indicesPrint, sortedPrint);
+        visualizedQuicksort(numbersToSort, leftLimit, sortedPivotPos-1, pivotPrint, indicesPrint, sortedPrint);
+        visualizedQuicksort(numbersToSort, sortedPivotPos+1, rightLimit, pivotPrint, indicesPrint, sortedPrint);
     }
 }
 
 
 int sortPivotToCorrectPos(int *numbersToSort, int leftLimit, int rightLimit, int *pivotPrint, int *indicesPrint)
 {
-    //##### Quicksort Funktionalität
-    int pivotValue = numbersToSort[leftLimit];
-    int i = leftLimit+1;
-    int j = rightLimit;
+    // numbersToSort[leftLimit] => ist aktueller Pivotwert
+    int l = leftLimit+1;
+    int r = rightLimit;
     int tempNum;
+
     //#####
+    int sleepDuration = 1;
+    printPivotLine(pivotPrint, leftLimit, rightLimit+1);
+    printInitialIndicesLine(indicesPrint, rightLimit+1, l, r);
+    sleep(sleepDuration);
 
-    int n, tempPivPos;
+    int i;
+    int tempPivPos;
+    //##
 
-    for(n=0; n<rightLimit+1; n++)
-        pivotPrint[n] = 45;
+    while(l < r)
+    {
+        while(l < rightLimit && numbersToSort[l] < numbersToSort[leftLimit])
+        {
+            //#####
+            indicesPrint[l] = 45;
+            //##
+
+            l++;
+
+            //#####
+            indicesPrint[l] = 108;
+            printf("\33\[u\33\[4B");
+            for(i = 0; i < rightLimit+1; i++)
+                printf(" %3c  ", indicesPrint[i]);
+
+            sleep(sleepDuration);
+            //##
+        }
+
+        while(r > leftLimit && numbersToSort[r] >= numbersToSort[leftLimit])
+        {
+            //#####
+            indicesPrint[r]=45;
+            //##
+
+            r--;
+
+            //#####
+            indicesPrint[r]=114;
+            printf("\33\[u\33\[4B");
+            for(i = 0; i < rightLimit+1; i++)
+                printf(" %3c  ", indicesPrint[i]);
+
+            sleep(sleepDuration);
+            //##
+        }
+
+        if(l < r)
+        {
+            tempNum = numbersToSort[l];
+            numbersToSort[l] = numbersToSort[r];
+            numbersToSort[r] = tempNum;
+
+            //#####
+            tempPivPos = indicesPrint[l];
+            indicesPrint[l] = indicesPrint[r];
+            indicesPrint[r] = tempPivPos;
+
+            printf("\33\[u");
+            for(i = 0; i < rightLimit+1; i++)
+                printf(" %3d  ", numbersToSort[i]);
+
+            printf("\33\[u\33\[4B");
+            for(i = 0; i < rightLimit+1; i++)
+                printf(" %3c  ", indicesPrint[i]);
+
+            sleep(sleepDuration);
+            //##
+        }
+    }
+
+    if(numbersToSort[r] < numbersToSort[leftLimit])
+    {
+        tempNum = numbersToSort[r];
+        numbersToSort[r] = numbersToSort[leftLimit];
+        numbersToSort[leftLimit] = tempNum;
+
+        //#####
+        printf("\33\[u");
+        for(int i = 0; i < rightLimit+1; i++)
+            printf(" %3d  ", numbersToSort[i]);
+
+        indicesPrint[r] = 45;
+        printf("\33\[u\33\[4B");
+        for(i = 0; i < rightLimit+1; i++)
+            printf(" %3c  ", indicesPrint[i]);
+
+        sleep(sleepDuration);
+        //##
+    }
+
+    return r;  // r = sortedPivotPos
+}
+
+
+void printPivotLine(int* pivotPrint, int leftLimit, int arraySize)
+{
+    int i;
+    for(i = 0; i < arraySize; i++)
+        pivotPrint[i] = 45;
 
     pivotPrint[leftLimit] = 80;
 
     printf("\33\[u\33\[2B");
-    for(n=0; n<rightLimit+1; n++)
-        printf(" %3c  ", pivotPrint[n]);
-    /*
-    for(n=0; n<rightLimit+1; n++)
-        indicesPrint[n] = 45;
+    for(i = 0; i < arraySize; i++)
+        printf(" %3c  ", pivotPrint[i]);
+}
 
-    indicesPrint[i] = 105;
-    indicesPrint[j] = 106;
+void printInitialIndicesLine(int* indicesPrint, int arraySize, int leftIndex, int rightIndex)
+{
+    int i;
+    for(i = 0; i < arraySize; i++)
+        indicesPrint[i] = 45;
+
+    indicesPrint[leftIndex] = 108;
+    indicesPrint[rightIndex] = 114;
 
     printf("\33\[u\33\[4B");
-    for(n=0; n<rightLimit+1; n++)
-        printf(" %3c  ", indicesPrint[n]);
-    */
-    sleep(2);
-
-    while(i < j)
-    {
-        while(i < rightLimit && numbersToSort[i] <= pivotValue)
-        {
-            indicesPrint[i] = 45;
-
-            //##### Quicksort Funktionalität
-            i++;
-            //#####
-            /*
-            indicesPrint[i] = 105;
-
-            printf("\33\[u\33\[4B");
-            for(n=0; n<rightLimit+1; n++)
-                printf(" %3c  ", indicesPrint[n]);
-
-            sleep(2);
-            */
-        }
-
-        while(j > leftLimit && numbersToSort[j] > pivotValue)
-        {
-            indicesPrint[j]=45;
-
-            //##### Quicksort Funktionalität
-            j--;
-            //#####
-            /*
-            indicesPrint[j]=106;
-
-            printf("\33\[u\33\[4B");
-            for(n=0; n<rightLimit+1; n++)
-                printf(" %3c  ", indicesPrint[n]);
-
-            sleep(2);
-            */
-        }
-
-        if(i < j)
-        {
-            //##### Quicksort Funktionalität
-            tempNum = numbersToSort[i];
-            numbersToSort[i] = numbersToSort[j];
-            numbersToSort[j] = tempNum;
-            //#####
-
-            printf("\33\[u");
-            for(n=0; n<rightLimit+1; n++)
-                printf(" %3d  ", numbersToSort[n]);
-            /*
-            tempPivPos = indicesPrint[i];
-            indicesPrint[i] = indicesPrint[j];
-            indicesPrint[j] = tempPivPos;
-
-            printf("\33\[u\33\[4B");
-            for(n=0; n<rightLimit+1; n++)
-                printf(" %3c  ", indicesPrint[n]);
-            */
-            sleep(2);
-        }
-    }
-
-    if(numbersToSort[j] < pivotValue)
-    {
-        //##### Quicksort Funktionalität
-        tempNum = numbersToSort[j];
-        numbersToSort[j] = numbersToSort[leftLimit];
-        numbersToSort[leftLimit] = tempNum;
-        //#####
-
-        printf("\33\[u");
-        for(n=0; n<rightLimit+1; n++)
-            printf(" %3d  ", numbersToSort[n]);
-
-        /*
-        tempPivPos = indicesPrint[j];
-        indicesPrint[j] = indicesPrint[leftLimit];
-        indicesPrint[leftLimit] = tempPivPos;
-
-        printf("\33\[u\33\[4B");
-        for(n=0; n<rightLimit+1; n++)
-            printf(" %3c  ", indicesPrint[n]);
-        */
-        sleep(2);
-    }
-
-    return j;
+    for(i = 0; i < arraySize; i++)
+        printf(" %3c  ", indicesPrint[i]);
 }
